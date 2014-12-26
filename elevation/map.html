@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0; font-size: 12px; }
+      table { font-size: 12px; }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?&sensor=false">
+    </script>
+    <script type="text/javascript" src="content-lib.js"></script>
+    <script type="text/javascript" src="elevation.js"></script>
+  </head>
+  <body>
+    <div id="map_canvas" style="width:70%; height:100%; float:left"></div>
+    <div id="path-stuff" style="float: left; width: 25%">
+      <table cellpadding="4">
+        <thead>
+          <th>Elevation</th>
+          <th>Distance</th>
+          <th>Slope</th>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      <p><button onClick="clearPath()">Clear</button></p>
+      <p>
+        <input type="checkbox" id="cumulative" onClick="showPath()"/>
+        <label for="cumulative">Cumulative Distance</label>
+      </p>
+    </div>
+  </body>
+</html>
