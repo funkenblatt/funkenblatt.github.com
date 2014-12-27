@@ -40,6 +40,7 @@ return x.setMap(null);;
 });
 heightMarkers=[];
 pathStuff=[];
+highlighted=-1;
 return showPath();;
 };
 
@@ -54,31 +55,31 @@ return document.getElementById("cumulative").checked;;
 function showPath () {
 var el = document.querySelector("#path-stuff tbody");
 var vdeltas = (function  () {
-var _ = pathStuff.map(function  (G76276) {
-return G76276[2];;
+var _ = pathStuff.map(function  (G76281) {
+return G76281[2];;
 });
 var _ = map(function  (a, b) {
 return b-a;;
 }, _, _.slice(1));
 return _;;;
 })();
-var hdeltas = map(function  (G76277, G76278) {
-var lat1 = G76277[0];
-var lng1 = G76277[1];
-var e1 = G76277[2];
-var lat2 = G76278[0];
-var lng2 = G76278[1];
-var e2 = G76278[2];
+var hdeltas = map(function  (G76282, G76283) {
+var lat1 = G76282[0];
+var lng1 = G76282[1];
+var e1 = G76282[2];
+var lat2 = G76283[0];
+var lng2 = G76283[1];
+var e2 = G76283[2];
 return earthDistance(lat1, lng1, lat2, lng2);;
 }, pathStuff, pathStuff.slice(1));
 var cums = reductions(function  (a, b) {
 return a+b;;
 }, hdeltas);
 el.innerHTML="";
-return pathStuff.forEach(function  (G76279, ix) {
-var lat = G76279[0];
-var lng = G76279[1];
-var elevation = G76279[2];
+return pathStuff.forEach(function  (G76284, ix) {
+var lat = G76284[0];
+var lng = G76284[1];
+var elevation = G76284[2];
 var n = node(["tr", ["td", roundTo(elevation, 3)], ["td", roundTo(((cumulativeP() ? cums : hdeltas))[ix], 3)], ["td", roundTo(vdeltas[ix]/hdeltas[ix], 3)]]);
 if (ix===highlighted) {
   n.setAttribute("class", "highlighted");
@@ -107,11 +108,11 @@ return deg*Math.PI/180;;
 };
 
 function greatCircleDist (lat1, lng1, lat2, lng2) {
-var G76280 = [lat1, lng1, lat2, lng2].map(toRadians);
-var lat1 = G76280[0];
-var lng1 = G76280[1];
-var lat2 = G76280[2];
-var lng2 = G76280[3];
+var G76285 = [lat1, lng1, lat2, lng2].map(toRadians);
+var lat1 = G76285[0];
+var lng1 = G76285[1];
+var lat2 = G76285[2];
+var lng2 = G76285[3];
 return Math.asin(Math.sqrt(sin2((lng2-lng1)/2)*Math.cos(lat1)*Math.cos(lat2)+sin2((lat2-lat1)/2)))*2;;;
 };
 
