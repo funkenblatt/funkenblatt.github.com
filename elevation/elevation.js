@@ -4,6 +4,8 @@ myMap=null;
 
 pathStuff=[];
 
+highlighted=-1;
+
 function infoContent (lat, lng, elevation, marker) {
 var button = node(["a", "Add to path"]);
 var killButton = node(["a", "Kill Me!!"]);
@@ -21,6 +23,16 @@ function addCoordMarker (evt) {
 return fetchUrl("http:\/\/ned.usgs.gov\/epqs\/pqs.php?"+urlencodeObj({y:evt.latLng.lat(),x:evt.latLng.lng(),units:"Meters",output:"json"}), "GET", function  (d) {
 var elevation = JSON.parse(d)["USGS_Elevation_Point_Query_Service"]["Elevation_Query"]["Elevation"];
 var mark = new google.maps.Marker({map:myMap,title:"foo",position:evt.latLng});
+var ix = pathStuff.length;
+google.maps.event.addListener(mark, "click", function  (evt) {
+var rows = document.querySelectorAll("#path-stuff tbody tr");
+if (highlighted>=0) {
+  rows[highlighted].className="";
+}
+;
+rows[ix].className="highlighted";
+highlighted=ix;;;
+});
 pathStuff.push([evt.latLng.lat(), evt.latLng.lng(), elevation]);
 heightMarkers.push(mark);
 return showPath();;;
@@ -31,6 +43,7 @@ function clearPath () {
 heightMarkers.forEach(function  (x) {
 return x.setMap(null);;
 });
+heightMarkers=[];
 pathStuff=[];
 return showPath();;
 };
@@ -46,31 +59,31 @@ return document.getElementById("cumulative").checked;;
 function showPath () {
 var el = document.querySelector("#path-stuff tbody");
 var vdeltas = (function  () {
-var _ = pathStuff.map(function  (G57091) {
-return G57091[2];;
+var _ = pathStuff.map(function  (G76271) {
+return G76271[2];;
 });
 var _ = map(function  (a, b) {
 return b-a;;
 }, _, _.slice(1));
 return _;;;
 })();
-var hdeltas = map(function  (G57092, G57093) {
-var lat1 = G57092[0];
-var lng1 = G57092[1];
-var e1 = G57092[2];
-var lat2 = G57093[0];
-var lng2 = G57093[1];
-var e2 = G57093[2];
+var hdeltas = map(function  (G76272, G76273) {
+var lat1 = G76272[0];
+var lng1 = G76272[1];
+var e1 = G76272[2];
+var lat2 = G76273[0];
+var lng2 = G76273[1];
+var e2 = G76273[2];
 return earthDistance(lat1, lng1, lat2, lng2);;
 }, pathStuff, pathStuff.slice(1));
 var cums = reductions(function  (a, b) {
 return a+b;;
 }, hdeltas);
 el.innerHTML="";
-return pathStuff.forEach(function  (G57094, ix) {
-var lat = G57094[0];
-var lng = G57094[1];
-var elevation = G57094[2];
+return pathStuff.forEach(function  (G76274, ix) {
+var lat = G76274[0];
+var lng = G76274[1];
+var elevation = G76274[2];
 return el.appendChild(node(["tr", ["td", roundTo(elevation, 3)], ["td", roundTo(((cumulativeP() ? cums : hdeltas))[ix], 3)], ["td", roundTo(vdeltas[ix]/hdeltas[ix], 3)]]));;
 });;;
 };
@@ -94,11 +107,11 @@ return deg*Math.PI/180;;
 };
 
 function greatCircleDist (lat1, lng1, lat2, lng2) {
-var G57095 = [lat1, lng1, lat2, lng2].map(toRadians);
-var lat1 = G57095[0];
-var lng1 = G57095[1];
-var lat2 = G57095[2];
-var lng2 = G57095[3];
+var G76275 = [lat1, lng1, lat2, lng2].map(toRadians);
+var lat1 = G76275[0];
+var lng1 = G76275[1];
+var lat2 = G76275[2];
+var lng2 = G76275[3];
 return Math.asin(Math.sqrt(sin2((lng2-lng1)/2)*Math.cos(lat1)*Math.cos(lat2)+sin2((lat2-lat1)/2)))*2;;;
 };
 
