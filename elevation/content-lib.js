@@ -6,6 +6,10 @@ function prependNode (parent, node) {
 return parent.insertBefore(node, parent.childNodes[0]);;
 };
 
+function isAttributes (x) {
+return typeof(x)==="object"&&(!((x instanceof Array)));;
+};
+
 function node (x, parent) {
 if (typeof(x)==="string") {
   return document.createTextNode(x);
@@ -22,7 +26,15 @@ else {
   if ((x instanceof Array)) {
   if (typeof(x[0])==="string") {
   var el = document.createElement(x[0]);
+var attrs = (isAttributes(x[1]) ? x[1] : null);
 x.shift();
+if (attrs) {
+  x.shift();
+for (var i in attrs) {
+el.setAttribute(i, attrs[i]);
+}
+}
+;
 x.forEach(function  (x) {
 var _ = node(x, el);
 var _ = (_ ? el.appendChild(_) : null);
@@ -90,12 +102,12 @@ else {
 
 function map (fun) {
 var arrays = toArray(arguments).slice(1);
-var minArray = minBy(function  (G57096) {
-return G57096.length;;
+var minArray = minBy(function  (G76312) {
+return G76312.length;;
 }, arrays);
 return minArray.map(function  (x, ix) {
-return fun.apply(this, arrays.map(function  (G57097) {
-return G57097[ix];;
+return fun.apply(this, arrays.map(function  (G76313) {
+return G76313[ix];;
 }));;
 });;;
 };
