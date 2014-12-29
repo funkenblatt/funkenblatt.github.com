@@ -34,11 +34,11 @@ return showPath();;;
 };
 
 function clearPath () {
-pathStuff.forEach(function  (G96777) {
-var lat = G96777[0];
-var lng = G96777[1];
-var elevation = G96777[2];
-var mark = G96777[3];
+pathStuff.forEach(function  (G96783) {
+var lat = G96783[0];
+var lng = G96783[1];
+var elevation = G96783[2];
+var mark = G96783[3];
 return mark.setMap(null);;
 });
 pathStuff=[];
@@ -57,40 +57,39 @@ return document.getElementById("cumulative").checked;;
 function showPath () {
 var el = document.querySelector("#path-stuff tbody");
 var vdeltas = (function  () {
-var _ = pathStuff.map(function  (G96778) {
-return G96778[2];;
+var _ = pathStuff.map(function  (G96784) {
+return G96784[2];;
 });
 var _ = map(function  (a, b) {
 return b-a;;
 }, _, _.slice(1));
 return _;;;
 })();
-var hdeltas = map(function  (G96779, G96780) {
-var lat1 = G96779[0];
-var lng1 = G96779[1];
-var e1 = G96779[2];
-var lat2 = G96780[0];
-var lng2 = G96780[1];
-var e2 = G96780[2];
+var hdeltas = map(function  (G96785, G96786) {
+var lat1 = G96785[0];
+var lng1 = G96785[1];
+var e1 = G96785[2];
+var lat2 = G96786[0];
+var lng2 = G96786[1];
+var e2 = G96786[2];
 return earthDistance(lat1, lng1, lat2, lng2);;
 }, pathStuff, pathStuff.slice(1));
 var cums = reductions(function  (a, b) {
 return a+b;;
 }, hdeltas);
 el.innerHTML="";
-return pathStuff.forEach(function  (G96781, ix) {
-var lat = G96781[0];
-var lng = G96781[1];
-var elevation = G96781[2];
-var mark = G96781[3];
-var setIx = G96781[4];
+return pathStuff.forEach(function  (G96787, ix) {
+var lat = G96787[0];
+var lng = G96787[1];
+var elevation = G96787[2];
+var mark = G96787[3];
+var setIx = G96787[4];
 var n = node(["tr", ["td", ["button", "X"]], ["td", roundTo(elevation, 3)], ["td", roundTo(((cumulativeP() ? cums : hdeltas))[ix], 3)], ["td", roundTo(vdeltas[ix]/hdeltas[ix], 3)]]);
 var deleteButton = n.querySelector("button");
 setIx(ix);
 deleteButton.onclick=function  () {
+pathStuff[ix][3].setMap(null);
 pathStuff.splice(ix, 1);
-heightMarkers[ix].setMap(null);
-heightMarkers.splice(ix, 1);
 return showPath();;
 };
 if (ix===highlighted) {
@@ -120,11 +119,11 @@ return deg*Math.PI/180;;
 };
 
 function greatCircleDist (lat1, lng1, lat2, lng2) {
-var G96782 = [lat1, lng1, lat2, lng2].map(toRadians);
-var lat1 = G96782[0];
-var lng1 = G96782[1];
-var lat2 = G96782[2];
-var lng2 = G96782[3];
+var G96788 = [lat1, lng1, lat2, lng2].map(toRadians);
+var lat1 = G96788[0];
+var lng1 = G96788[1];
+var lat2 = G96788[2];
+var lng2 = G96788[3];
 return Math.asin(Math.sqrt(sin2((lng2-lng1)/2)*Math.cos(lat1)*Math.cos(lat2)+sin2((lat2-lat1)/2)))*2;;;
 };
 
