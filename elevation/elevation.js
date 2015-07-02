@@ -34,11 +34,11 @@ return showPath();;;
 };
 
 function clearPath () {
-pathStuff.forEach(function  (G24200) {
-var lat = G24200[0];
-var lng = G24200[1];
-var elevation = G24200[2];
-var mark = G24200[3];
+pathStuff.forEach(function  (G59785) {
+var lat = G59785[0];
+var lng = G59785[1];
+var elevation = G59785[2];
+var mark = G59785[3];
 return mark.setMap(null);;
 });
 pathStuff=[];
@@ -57,34 +57,34 @@ return document.getElementById("cumulative").checked;;
 function showPath () {
 var el = document.querySelector("#path-stuff tbody");
 var vdeltas = (function  () {
-var _ = pathStuff.map(function  (G24201) {
-return G24201[2];;
+var _ = pathStuff.map(function  (G59786) {
+return G59786[2];;
 });
 var _ = map(function  (a, b) {
 return b-a;;
 }, _, _.slice(1));
 return _;;;
 })();
-var hdeltas = map(function  (G24202, G24203) {
-var lat1 = G24202[0];
-var lng1 = G24202[1];
-var e1 = G24202[2];
-var lat2 = G24203[0];
-var lng2 = G24203[1];
-var e2 = G24203[2];
+var hdeltas = map(function  (G59787, G59788) {
+var lat1 = G59787[0];
+var lng1 = G59787[1];
+var e1 = G59787[2];
+var lat2 = G59788[0];
+var lng2 = G59788[1];
+var e2 = G59788[2];
 return earthDistance(lat1, lng1, lat2, lng2);;
 }, pathStuff, pathStuff.slice(1));
 var cums = reductions(function  (a, b) {
 return a+b;;
 }, hdeltas);
 el.innerHTML="";
-return pathStuff.forEach(function  (G24204, ix) {
-var lat = G24204[0];
-var lng = G24204[1];
-var elevation = G24204[2];
-var mark = G24204[3];
-var setIx = G24204[4];
-var n = node(["tr", ["td", ["button", "X"]], ["td", roundTo(elevation, 3)], ["td", roundTo(((cumulativeP() ? cums : hdeltas))[ix], 3)], ["td", roundTo(vdeltas[ix]/hdeltas[ix], 3)]]);
+return pathStuff.forEach(function  (G59789, ix) {
+var lat = G59789[0];
+var lng = G59789[1];
+var elevation = G59789[2];
+var mark = G59789[3];
+var setIx = G59789[4];
+var n = node(["tr", ["td", ["button", "X"]], ["td", roundTo(elevation, 3)], ["td", roundTo((cumulativeP() ? cums[ix-1] : hdeltas[ix]), 3)], ["td", roundTo(vdeltas[ix]/hdeltas[ix], 3)]]);
 var deleteButton = n.querySelector("button");
 setIx(ix);
 deleteButton.onclick=function  () {
@@ -119,11 +119,11 @@ return deg*Math.PI/180;;
 };
 
 function greatCircleDist (lat1, lng1, lat2, lng2) {
-var G24205 = [lat1, lng1, lat2, lng2].map(toRadians);
-var lat1 = G24205[0];
-var lng1 = G24205[1];
-var lat2 = G24205[2];
-var lng2 = G24205[3];
+var G59790 = [lat1, lng1, lat2, lng2].map(toRadians);
+var lat1 = G59790[0];
+var lng1 = G59790[1];
+var lat2 = G59790[2];
+var lng2 = G59790[3];
 return Math.asin(Math.sqrt(sin2((lng2-lng1)/2)*Math.cos(lat1)*Math.cos(lat2)+sin2((lat2-lat1)/2)))*2;;;
 };
 
