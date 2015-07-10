@@ -1163,7 +1163,7 @@ function M(a, b) {
 function N(a, b) {
   return null == a ? null : a && (a.i & 256 || a.xb) ? a.da(null, b) : va(a) ? b < a.length ? a[b] : null : "string" === typeof a ? b < a.length ? a[b] : null : B(Oa, a) ? Pa.c(a, b) : null;
 }
-function vc(a, b, c) {
+function uc(a, b, c) {
   return null != a ? a && (a.i & 256 || a.xb) ? a.G(null, b, c) : va(a) ? b < a.length ? a[b] : c : "string" === typeof a ? b < a.length ? a[b] : c : B(Oa, a) ? Pa.g(a, b, c) : c : c;
 }
 var wc = function wc() {
@@ -1356,7 +1356,7 @@ k.call = function() {
     a = this;
     return a.e.o ? a.e.o() : a.e.call(null);
   }
-  var w = null, w = function(Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, uc, vd, Oe) {
+  var w = null, w = function(Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, vc, wd, Re) {
     switch(arguments.length) {
       case 1:
         return ma.call(this, Da);
@@ -1397,11 +1397,11 @@ k.call = function() {
       case 19:
         return d.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb);
       case 20:
-        return c.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, uc);
+        return c.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, vc);
       case 21:
-        return b.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, uc, vd);
+        return b.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, vc, wd);
       case 22:
-        return a.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, uc, vd, Oe);
+        return a.call(this, Da, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, w, ab, fb, wb, Jb, vc, wd, Re);
     }
     throw Error("Invalid arity: " + arguments.length);
   };
@@ -1540,7 +1540,7 @@ function Mc(a) {
   return A(a) ? !0 : !1;
 }
 function Nc(a, b) {
-  return vc(a, b, Kc) === Kc ? !1 : !0;
+  return uc(a, b, Kc) === Kc ? !1 : !0;
 }
 function Oc(a, b) {
   var c = G(b);
@@ -1959,7 +1959,7 @@ k.call = function() {
       case 2:
         return N(c, this);
       case 3:
-        return vc(c, this, d);
+        return uc(c, this, d);
     }
     throw Error("Invalid arity: " + arguments.length);
   };
@@ -1967,7 +1967,7 @@ k.call = function() {
     return N(c, this);
   };
   a.g = function(a, c, d) {
-    return vc(c, this, d);
+    return uc(c, this, d);
   };
   return a;
 }();
@@ -1978,7 +1978,7 @@ k.b = function(a) {
   return N(a, this);
 };
 k.c = function(a, b) {
-  return vc(a, this, b);
+  return uc(a, this, b);
 };
 k.C = function() {
   var a = this.Da;
@@ -2422,7 +2422,7 @@ function Bc() {
     case 5:
       return ud(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
     default:
-      return wd(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], new I(Array.prototype.slice.call(arguments, 5), 0));
+      return vd(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], new I(Array.prototype.slice.call(arguments, 5), 0));
   }
 }
 function sd(a, b) {
@@ -2447,7 +2447,7 @@ function ud(a, b, c, d, e) {
   c = a.t;
   return a.r ? (d = nd(b, c + 1), d <= c ? rd(a, d, b) : a.r(b)) : a.apply(a, md(b));
 }
-function wd(a, b, c, d, e, f) {
+function vd(a, b, c, d, e, f) {
   b = mc(b, mc(c, mc(d, mc(e, od(f)))));
   c = a.t;
   return a.r ? (d = nd(b, c + 1), d <= c ? rd(a, d, b) : a.r(b)) : a.apply(a, md(b));
@@ -2595,7 +2595,7 @@ function Bd(a) {
         return d.call(this, a, b, e, g);
       }
       function d(c, e, f, g) {
-        return wd(b, a, c, e, f, oc([g], 0));
+        return vd(b, a, c, e, f, oc([g], 0));
       }
       c.t = 3;
       c.r = function(a) {
@@ -3696,7 +3696,7 @@ oe.prototype.p = function() {
 var pe = new oe;
 function qe(a, b) {
   return Mc(Fc(b) ? sc(a) === sc(b) ? yd(Sc, Kd.c(function(a) {
-    return Wb.c(vc(b, J(a), pe), J(K(a)));
+    return Wb.c(uc(b, J(a), pe), J(K(a)));
   }, a)) : null : null);
 }
 function re(a) {
@@ -4249,7 +4249,7 @@ k.pa = function(a, b, c, d, e, f) {
   }
   f.ta = !0;
   f = b + 5;
-  d = Ne ? Ne(a, f, l, g, c, d, e) : Pe.call(null, a, f, l, g, c, d, e);
+  d = Ne ? Ne(a, f, l, g, c, d, e) : Oe.call(null, a, f, l, g, c, d, e);
   e = 2 * h;
   h = 2 * h + 1;
   a = this.Ba(a);
@@ -4292,7 +4292,7 @@ k.oa = function(a, b, c, d, e) {
   e = this.A;
   h = this.a;
   a += 5;
-  a = Qe ? Qe(a, l, f, b, c, d) : Pe.call(null, a, l, f, b, c, d);
+  a = Pe ? Pe(a, l, f, b, c, d) : Oe.call(null, a, l, f, b, c, d);
   c = 2 * g;
   g = 2 * g + 1;
   d = Aa(h);
@@ -4320,7 +4320,7 @@ k.Ba = function(a) {
 };
 k.Sa = function() {
   var a = this.a;
-  return Re ? Re(a) : Se.call(null, a);
+  return Qe ? Qe(a) : Se.call(null, a);
 };
 k.Ca = function(a, b, c, d) {
   var e = this.a[b >>> a & 31];
@@ -4440,17 +4440,17 @@ k.Ta = function(a, b, c) {
   a = Te(this.a, this.d, c);
   return-1 === a ? this : 1 === this.d ? null : new Ue(null, this.ua, this.d - 1, Ge(this.a, Xc(a, 2)));
 };
-function Pe() {
+function Oe() {
   switch(arguments.length) {
     case 6:
-      return Qe(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
+      return Pe(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
     case 7:
       return Ne(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
     default:
       throw Error([E("Invalid arity: "), E(arguments.length)].join(""));;
   }
 }
-function Qe(a, b, c, d, e, f) {
+function Pe(a, b, c, d, e, f) {
   var g = Qb(b);
   if (g === d) {
     return new Ue(null, g, 2, [b, c, e, f]);
@@ -4614,14 +4614,14 @@ Xe.prototype[ya] = function() {
 function Se() {
   switch(arguments.length) {
     case 1:
-      return Re(arguments[0]);
+      return Qe(arguments[0]);
     case 4:
       return Ye(arguments[0], arguments[1], arguments[2], arguments[3]);
     default:
       throw Error([E("Invalid arity: "), E(arguments.length)].join(""));;
   }
 }
-function Re(a) {
+function Qe(a) {
   return Ye(null, a, 0, null);
 }
 function Ye(a, b, c, d) {
@@ -5522,9 +5522,9 @@ k = Gf.prototype;
 k.call = function() {
   function a(a, b, c, d, e, f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H, U) {
     a = this;
-    var ma = wd(a.f, b, c, d, e, oc([f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H, U], 0)), vg = Z(this, ma);
-    A(vg) || V(a.name, ma);
-    return wd(vg, b, c, d, e, oc([f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H, U], 0));
+    var ma = vd(a.f, b, c, d, e, oc([f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H, U], 0)), zg = Z(this, ma);
+    A(zg) || V(a.name, ma);
+    return vd(zg, b, c, d, e, oc([f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H, U], 0));
   }
   function b(a, b, c, d, e, f, g, h, l, n, m, p, q, r, t, u, y, x, w, D, H) {
     a = this;
@@ -5652,7 +5652,7 @@ k.call = function() {
     A(c) || V(a.name, b);
     return c.o ? c.o() : c.call(null);
   }
-  var w = null, w = function(w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, uc, vd, Oe) {
+  var w = null, w = function(w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, vc, wd, Re) {
     switch(arguments.length) {
       case 1:
         return ma.call(this, w);
@@ -5693,11 +5693,11 @@ k.call = function() {
       case 19:
         return d.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb);
       case 20:
-        return c.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, uc);
+        return c.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, vc);
       case 21:
-        return b.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, uc, vd);
+        return b.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, vc, wd);
       case 22:
-        return a.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, uc, vd, Oe);
+        return a.call(this, w, T, W, X, Y, ca, ga, ka, oa, qa, ua, za, Ga, Na, Yb, ab, fb, wb, Jb, vc, wd, Re);
     }
     throw Error("Invalid arity: " + arguments.length);
   };
@@ -5834,9 +5834,9 @@ k.Z = function(a, b, c, d, e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H) {
   return ma.Z ? ma.Z(a, b, c, d, e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H) : ma.call(null, a, b, c, d, e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H);
 };
 k.lb = function(a, b, c, d, e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H, U) {
-  var ma = wd(this.f, a, b, c, d, oc([e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H, U], 0)), w = Z(this, ma);
+  var ma = vd(this.f, a, b, c, d, oc([e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H, U], 0)), w = Z(this, ma);
   A(w) || V(this.name, ma);
-  return wd(w, a, b, c, d, oc([e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H, U], 0));
+  return vd(w, a, b, c, d, oc([e, f, g, h, l, m, n, p, q, r, t, u, x, y, D, H, U], 0));
 };
 function Hf(a, b, c) {
   Jd.q(a.Ua, wc, b, c);
@@ -6276,7 +6276,7 @@ function rg(a, b, c, d) {
 function ug(a, b, c, d, e) {
   return new qg(a, b, c, d, e, null);
 }
-var wg = function wg(b, c, d) {
+var vg = function vg(b, c, d) {
   if (0 === c) {
     var e = b.a;
     b = Array(d);
@@ -6292,7 +6292,7 @@ var wg = function wg(b, c, d) {
     }(), m = A(f) ? function() {
       var b = Wc(d, 1 << c);
       return 0 === b ? 1 << c : b;
-    }() : 0 < l ? d - g[l - 1] : d, e = b.a, n = wg(e[l], c - 5, m), p = 5 === c ? 32 === n.a.length : eg(n);
+    }() : 0 < l ? d - g[l - 1] : d, e = b.a, n = vg(e[l], c - 5, m), p = 5 === c ? 32 === n.a.length : eg(n);
     b = Array(A(A(f) ? p : f) ? 32 : 33);
     var q = A(p) ? function() {
       var b = Wc(m, 1 << c);
@@ -6326,7 +6326,7 @@ var wg = function wg(b, c, d) {
     }
   }
   return Qd(null, b);
-}, xg = function xg(b, c, d, e) {
+}, wg = function wg(b, c, d, e) {
   if (0 === c) {
     var f = b.a, g = f.length - d, h = Array(g);
     Jc(f, d, h, 0, g);
@@ -6346,7 +6346,7 @@ var wg = function wg(b, c, d) {
       }
       b += 1;
     }
-  }() : m[32], q = xg(f[p], c - 5, 0 < p ? d - (A(l) ? p * (1 << c) : m[p - 1]) : d, function() {
+  }() : m[32], q = wg(f[p], c - 5, 0 < p ? d - (A(l) ? p * (1 << c) : m[p - 1]) : d, function() {
     var b = 1 << c, d = 0 < p ? e - (A(l) ? p * (1 << c) : m[p - 1]) : e;
     return b < d ? b : d;
   }()), g = h - p, g = null == q ? g - 1 : g;
@@ -6380,7 +6380,7 @@ var wg = function wg(b, c, d) {
   h[32] = r;
   return Qd(b.l, h);
 };
-function yg(a, b, c, d, e, f) {
+function xg(a, b, c, d, e, f) {
   this.d = a;
   this.shift = b;
   this.root = c;
@@ -6390,7 +6390,7 @@ function yg(a, b, c, d, e, f) {
   this.i = 2315152159;
   this.s = 2052;
 }
-k = yg.prototype;
+k = xg.prototype;
 k.toString = function() {
   return Gb(this);
 };
@@ -6450,7 +6450,7 @@ k.D = function(a, b, c) {
 k.cb = function(a, b, c) {
   if (0 <= b && b < this.d) {
     var d = this.d - this.n.length;
-    return b >= d ? (a = Array(this.n.length), b -= d, Jc(this.n, 0, a, 0, this.n.length), a[b] = c, new yg(this.d, this.shift, this.root, a, this.h, null)) : new yg(this.d, this.shift, lg(this.shift, this.root, b, c), this.n, this.h, null);
+    return b >= d ? (a = Array(this.n.length), b -= d, Jc(this.n, 0, a, 0, this.n.length), a[b] = c, new xg(this.d, this.shift, this.root, a, this.h, null)) : new xg(this.d, this.shift, lg(this.shift, this.root, b, c), this.n, this.h, null);
   }
   return b === this.d ? Ha(this, c) : Wd(b, this.d);
 };
@@ -6479,10 +6479,10 @@ k.Fa = function() {
   if (1 < this.n.length) {
     var a = Array(this.n.length - 1);
     Jc(this.n, 0, a, 0, a.length);
-    return new yg(this.d - 1, this.shift, this.root, a, this.h, null);
+    return new xg(this.d - 1, this.shift, this.root, a, this.h, null);
   }
   var a = hg(this.d, this.shift, this.root, this.n, this.d - 2), b = kg(this.shift, this.d - this.n.length, this.root.l, this.root);
-  return null == b ? new yg(this.d - 1, this.shift, R, a, this.h, null) : 5 < this.shift && null == b.a[1] ? new yg(this.d - 1, this.shift - 5, b.a[0], a, this.h, null) : new yg(this.d - 1, this.shift, b, a, this.h, null);
+  return null == b ? new xg(this.d - 1, this.shift, R, a, this.h, null) : 5 < this.shift && null == b.a[1] ? new xg(this.d - 1, this.shift - 5, b.a[0], a, this.h, null) : new xg(this.d - 1, this.shift, b, a, this.h, null);
 };
 k.C = function() {
   var a = this.m;
@@ -6495,7 +6495,7 @@ k.La = function() {
   var a = this.d, b = this.shift, c = new Pd({}, Aa(this.root.a)), d = this.n, e = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
   Jc(d, 0, e, 0, d.length);
   d = this.n.length;
-  return zg.v ? zg.v(a, b, c, e, d) : zg.call(null, a, b, c, e, d);
+  return yg.v ? yg.v(a, b, c, e, d) : yg.call(null, a, b, c, e, d);
 };
 k.L = function() {
   return Cc(rc, this.h);
@@ -6513,20 +6513,20 @@ k.eb = function(a, b, c) {
   }
   var d = this.d - this.n.length;
   if (b >= d) {
-    return c = Array(a), Jc(this.n, b - d, c, 0, a), new yg(a, 5, R, c, this.h, null);
+    return c = Array(a), Jc(this.n, b - d, c, 0, a), new xg(a, 5, R, c, this.h, null);
   }
-  var e = c > d, f = e ? this.root : wg(this.root, this.shift, c);
-  b = 0 === b ? f : xg(f, this.shift, b, c < d ? c : d);
+  var e = c > d, f = e ? this.root : vg(this.root, this.shift, c);
+  b = 0 === b ? f : wg(f, this.shift, b, c < d ? c : d);
   e ? (c -= d, d = Array(c), Jc(this.n, 0, d, 0, c), c = d) : c = hg(a, this.shift, b, [], a - 1);
   e = e ? b : kg(this.shift, a, b.l, b);
   if (null == e) {
-    return new yg(a, 5, R, c, this.h, null);
+    return new xg(a, 5, R, c, this.h, null);
   }
   for (b = this.shift;;) {
     if (5 < b && null == e.a[1]) {
       b -= 5, e = e.a[0];
     } else {
-      return new yg(a, b, e, c, this.h, null);
+      return new xg(a, b, e, c, this.h, null);
     }
   }
 };
@@ -6543,14 +6543,14 @@ k.J = function() {
   return 0 === this.d ? null : 0 === this.d - this.n.length ? nc(this.n, 0) : tg(this, 0, 0);
 };
 k.K = function(a, b) {
-  return new yg(this.d, this.shift, this.root, this.n, b, this.m);
+  return new xg(this.d, this.shift, this.root, this.n, b, this.m);
 };
 k.I = function(a, b) {
   if (32 > this.n.length) {
     var c = this.n.length, d = Array(c + 1);
     Jc(this.n, 0, d, 0, c);
     d[c] = b;
-    return new yg(this.d + 1, this.shift, this.root, d, this.h, null);
+    return new xg(this.d + 1, this.shift, this.root, d, this.h, null);
   }
   c = Qd(this.root.l, this.n);
   d = [null];
@@ -6569,9 +6569,9 @@ k.I = function(a, b) {
       g[1] = h + 32;
       g[32] = 2;
     }
-    return new yg(this.d + 1, this.shift + 5, f, d, this.h, null);
+    return new xg(this.d + 1, this.shift + 5, f, d, this.h, null);
   }
-  return new yg(this.d + 1, this.shift, jg(this.shift, this.d, this.root.l, this.root, c), d, this.h, null);
+  return new xg(this.d + 1, this.shift, jg(this.shift, this.d, this.root.l, this.root, c), d, this.h, null);
 };
 k.call = function() {
   var a = null, a = function(a, c, d) {
@@ -6601,7 +6601,7 @@ k.c = function(a, b) {
   return this.ha(null, a, b);
 };
 Q.prototype.fb = function() {
-  return new yg(sc(this), this.shift, this.root, this.n, Dc(this), null);
+  return new xg(sc(this), this.shift, this.root, this.n, Dc(this), null);
 };
 ke.prototype.fb = function() {
   var a = this.start, b = this.end;
@@ -6657,7 +6657,7 @@ k.Ra = function() {
     this.root.l = null;
     var a = Array(this.za);
     Jc(this.n, 0, a, 0, this.za);
-    return new yg(this.d, this.shift, this.root, a, null, null);
+    return new xg(this.d, this.shift, this.root, a, null, null);
   }
   throw Error("persistent! called twice");
 };
@@ -6676,7 +6676,7 @@ k.O = function() {
   }
   throw Error("count after persistent!");
 };
-function zg(a, b, c, d, e) {
+function yg(a, b, c, d, e) {
   return new Ag(a, b, c, d, e);
 }
 ;Q.prototype.eb = function(a, b, c) {
@@ -6781,7 +6781,7 @@ null)], null), new z(null, 3, [Mf, bg, hf, new Q(null, 2, 5, R, [461, 120], null
 var Mg = 2 * Math.PI;
 if ("undefined" === typeof Ng) {
   var Ng = function() {
-    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = vc(S, ag, wf());
+    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = uc(S, ag, wf());
     return new Gf(Tb("draw-segment"), function() {
       return function(a, b) {
         return Mf.b(b);
@@ -6799,7 +6799,7 @@ Hf(Ng, Rf, function(a, b) {
 });
 if ("undefined" === typeof Og) {
   var Og = function() {
-    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = vc(S, ag, wf());
+    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = uc(S, ag, wf());
     return new Gf(Tb("update-seg"), function() {
       return function(a) {
         return Mf.b(a);
@@ -6846,7 +6846,7 @@ function Rg(a, b) {
 }
 if ("undefined" === typeof Sg) {
   var Sg = function() {
-    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = vc(S, ag, wf());
+    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = uc(S, ag, wf());
     return new Gf(Tb("seg-normal"), function() {
       return function(a) {
         return Mf.b(a);
@@ -6865,7 +6865,7 @@ Hf(Sg, Rf, function(a, b) {
   return Eg(c, new Q(null, 2, 5, R, [Math.cos(d), Math.sin(d)], null));
 });
 if ("undefined" === typeof Tg) {
-  var Tg, Ug = P ? P(S) : Ed.call(null, S), Vg = P ? P(S) : Ed.call(null, S), Wg = P ? P(S) : Ed.call(null, S), Xg = P ? P(S) : Ed.call(null, S), Yg = vc(S, ag, wf());
+  var Tg, Ug = P ? P(S) : Ed.call(null, S), Vg = P ? P(S) : Ed.call(null, S), Wg = P ? P(S) : Ed.call(null, S), Xg = P ? P(S) : Ed.call(null, S), Yg = uc(S, ag, wf());
   Tg = new Gf(Tb("seg-endpoint"), Mf, Kf, Yg, Ug, Vg, Wg, Xg);
 }
 Hf(Tg, bg, function(a) {
@@ -6972,7 +6972,7 @@ function ch(a, b) {
 }
 if ("undefined" === typeof Cd) {
   var Cd = function() {
-    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = vc(S, ag, wf());
+    var a = P ? P(S) : Ed.call(null, S), b = P ? P(S) : Ed.call(null, S), c = P ? P(S) : Ed.call(null, S), d = P ? P(S) : Ed.call(null, S), e = uc(S, ag, wf());
     return new Gf(Tb("check-intersection"), function() {
       return function(a, b) {
         return new Q(null, 2, 5, R, [Mf.b(a), Mf.b(b)], null);
@@ -7165,7 +7165,7 @@ function wh(a) {
     return window.onkeyup = null;
   }).call(null);
 }
-(function() {
+function yh() {
   var a = document.querySelector("body");
   a.innerHTML = "";
   a.appendChild(function() {
@@ -7178,15 +7178,24 @@ function wh(a) {
   a.appendChild(rh);
   uh(oc(["Snake!  We need you to infiltrate this 2D facility and retrieve\nall of the plans for Plastic Gear!  Don't touch any of the walls in the facility\nthough, they're coated with a deadly neurotoxin!  Also, don't touch yourself either,\nwe've heard that's bad for you."], 0));
   return xh(th);
-})();
-document.querySelector("body").innerHTML = "";
-var yh = document.createElement("canvas");
-yh.setAttribute("width", 1280);
-yh.setAttribute("height", 960);
-yh.setAttribute("style", "border: 1px solid #000");
-yh.getContext("2d");
-document.querySelector("body").appendChild(yh);
-var zh = new Q(null, 2, 5, R, [0, 0], null);
-P || Ed.call(null, zh);
+}
+var zh = ["figwheel_test", "snake", "init_everything"], Ah = this;
+zh[0] in Ah || !Ah.execScript || Ah.execScript("var " + zh[0]);
+for (var Bh;zh.length && (Bh = zh.shift());) {
+  var Ch;
+  if (Ch = !zh.length) {
+    Ch = void 0 !== yh;
+  }
+  Ch ? Ah[Bh] = yh : Ah = Ah[Bh] ? Ah[Bh] : Ah[Bh] = {};
+}
+;document.querySelector("body").innerHTML = "";
+var Dh = document.createElement("canvas");
+Dh.setAttribute("width", 1280);
+Dh.setAttribute("height", 960);
+Dh.setAttribute("style", "border: 1px solid #000");
+Dh.getContext("2d");
+document.querySelector("body").appendChild(Dh);
+var Eh = new Q(null, 2, 5, R, [0, 0], null);
+P || Ed.call(null, Eh);
 
 })();
