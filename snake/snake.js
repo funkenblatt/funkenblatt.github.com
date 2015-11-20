@@ -8004,7 +8004,7 @@ function li(a) {
   };
   return fi.ontouchstart = function(b) {
     ji = !0;
-    b = F(ki(th(vh, b)));
+    b = F(ki(th(vh, b.touches.item(0))));
     return 200 > Math.abs(b) ? a.n ? a.n() : a.call(null) : null;
   };
 }
