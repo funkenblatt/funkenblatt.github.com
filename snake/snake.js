@@ -7975,8 +7975,14 @@ var $h = 2 * Math.PI, ai = function() {
   return a;
 }();
 window.onresize = function() {
-  ai.width = window.innerWidth;
-  return ai.height = window.innerHeight;
+  ai.width = function() {
+    var a = window.innerWidth;
+    return 1280 > a ? a : 1280;
+  }();
+  return ai.height = function() {
+    var a = window.innerHeight;
+    return 960 > a ? a : 960;
+  }();
 };
 var bi = document.createElement("div"), vh = ai.getContext("2d");
 function ci() {
