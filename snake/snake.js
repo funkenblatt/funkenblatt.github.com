@@ -7963,12 +7963,12 @@ Z, U, new Q(null, 2, 5, R, [-241, 49], null), V, new Q(null, 2, 5, R, [-558, 49]
 var $h = 2 * Math.PI, ai = function() {
   var a = document.createElement("canvas"), b = function() {
     var a = window.innerWidth;
-    return 1280 < a ? a : 1280;
+    return 1280 > a ? a : 1280;
   }();
   w(b) && a.setAttribute("width", b);
   b = function() {
     var a = window.innerHeight;
-    return 960 < a ? a : 960;
+    return 960 > a ? a : 960;
   }();
   w(b) && a.setAttribute("height", b);
   a.setAttribute("style", "border: 1px solid #000; display: block;");
