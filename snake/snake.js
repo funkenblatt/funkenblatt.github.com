@@ -7962,12 +7962,12 @@ Z, U, new Q(null, 2, 5, R, [-241, 49], null), V, new Q(null, 2, 5, R, [-558, 49]
 3, [Y, Z, U, new Q(null, 2, 5, R, [-397, -99], null), V, new Q(null, 2, 5, R, [-397, -218], null)], null)], null)], null);
 var $h = 2 * Math.PI, ai = function() {
   var a = document.createElement("canvas"), b = function() {
-    var a = window.innerWidth;
+    var a = window.innerWidth - 20;
     return 1280 > a ? a : 1280;
   }();
   w(b) && a.setAttribute("width", b);
   b = function() {
-    var a = window.innerHeight;
+    var a = window.innerHeight - 20;
     return 960 > a ? a : 960;
   }();
   w(b) && a.setAttribute("height", b);
@@ -7976,11 +7976,11 @@ var $h = 2 * Math.PI, ai = function() {
 }();
 window.onresize = function() {
   ai.width = function() {
-    var a = window.innerWidth;
+    var a = window.innerWidth - 20;
     return 1280 > a ? a : 1280;
   }();
   return ai.height = function() {
-    var a = window.innerHeight;
+    var a = window.innerHeight - 20;
     return 960 > a ? a : 960;
   }();
 };
@@ -8213,6 +8213,7 @@ function zi(a) {
     d = L(c, 0);
     c = L(c, 1);
     var e = 640 - ai.width / 2, f = 480 - ai.height / 2;
+    a.lineWidth = 1.5;
     a.translate(-yi(-e, d, e), -yi(-f, c, f));
     return fg(Wd(ki, a), Jd.j(Lg.a(b), he.b(Yd, Kg.a(b)), Bc([Jg.a(b)], 0)));
   }, !0);
