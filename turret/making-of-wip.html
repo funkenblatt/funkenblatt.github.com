@@ -1,0 +1,202 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><title>Purely Functional Browser Games</title><style type="text/css">body { font-family: sans-serif; font-size: 0.9em }div.container {width: 60%; margin-left: auto; margin-right: auto; }
+img { border: 1px solid #000; }
+.font-lock-string-face { color: #8b2252; }
+.clojure-interop-method-face { color: #483d8b; }
+.font-lock-constant-face { color: #008b8b; }
+.font-lock-function-name-face { color: #0000ff; }
+.font-lock-variable-name-face { color: #a0522d; }
+.clojure-keyword-face { color: #008b8b; }
+.font-lock-type-face { color: #228b22; }
+.font-lock-keyword-face { color: #a020f0; }
+.default { color: #000000; background: #ffffff; font-weight: normal; }
+</style></head><body><div class="container"><h1>Purely Functional Browser Games</h1><p>I made <a href="/turret/">this game</a> a while back. This article is a rough
+summary of how I did it.</p><h2>Preliminaries</h2><p>This article assumes some basic familiarity with Clojure, leiningen, Clojurescript, and the
+browser programming environment, i.e. what the DOM is and whatnot.  It also assumes
+high school math knowledge, though I won't be going into too much detail into the
+math bits.  Finally, this article also assumes that you've never written a game
+before.  If you have most of it probably won't be very interesting.</p><p><a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/turret.cljs">This</a>
+is where you can find the main source of the final game.  I won't be covering the development
+of the entire game, just covering the basic principles that guided it.  If you'd like to follow along,
+you can clone the <b>figwheel-test</b> parent repository.
+I'd also highly suggest figuring out how to get 
+<a href="https://github.com/bhauman/lein-figwheel">figwheel</a> and a clojurescript
+browser REPL working within your development environment of choice.</p><p>If you are following along, you'll want to start off in a namespace such as the
+following:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">ns</span><span class="default"> </span><span class="font-lock-type-face">figwheel-test.turret-walkthrough</span><span class="default">
+  (</span><span class="clojure-keyword-face">:require</span><span class="default"> [</span><span class="font-lock-type-face">figwheel-test.common</span><span class="default">
+             </span><span class="clojure-keyword-face">:refer</span><span class="default"> [tau canvas ctx fooprint init-elements scale-factor
+                     with-viewport on-space]
+             </span><span class="clojure-keyword-face">:as</span><span class="default"> com]
+            [</span><span class="font-lock-type-face">figwheel-test.geometry</span><span class="default"> </span><span class="clojure-keyword-face">:as</span><span class="default"> g]
+            [</span><span class="font-lock-type-face">figwheel-test.canvas</span><span class="default"> </span><span class="clojure-keyword-face">:as</span><span class="default"> c])
+  (</span><span class="clojure-keyword-face">:require-macros</span><span class="default"> [</span><span class="font-lock-type-face">figwheel-test.macros</span><span class="default"> </span><span class="clojure-keyword-face">:as</span><span class="default"> m]))</span></pre>
+</blockquote><h2>Blank Slate</h2><p>OK so let's say you've got figwheel up and running, and you're now connected to
+http://localhost:3449/ and staring at a blank screen.  Terrifying, huh?  Let's
+fill that soul-devouring void with something more comfortable.</p><p>The code for doing this is in the
+<a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/turret.cljs">figwheel-test.common</a>
+namespace, which is where I put
+all the miscellaneous common code that I use across all my games.
+I use a library called <a href="https://github.com/jeluard/hipo">Hipo</a> to make my
+DOM elements, though I probably didn't really need it.  It basically uses macros to
+translate <a href="https://github.com/weavejester/hiccup/">hiccup</a> syntax into DOM
+elements, which can then be stuck into variables like I've done here.</p><p>Anyway the main thing we care about here is calling the function</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-type-face">com</span><span class="default">/init-elements)</span></pre>
+</blockquote><p>from our REPL, which will give us a canvas with a border around it.</p><h2>Questions</h2><p>What is a game, anyway?  Well, the fundamental structure of every game is pretty simple.
+You have some sort of piece of information that describes the game world, or "state."
+Then you have a function that creates and returns a new world, based on a combination
+of whatever the current world is and any user inputs.  This basic model of a game works
+for everything from tic-tac-toe to DOOM and beyond.</p><blockquote>Game = (World, UserInputs) -> World</blockquote><p>That's it!  Sounds easy, right?  Well, I lied, there's actually a bit more to it.  One thing
+is when we actually need to update the state.  This will depend on what sort of game you're
+making.  For a tic-tac-toe game, for example, you'll only need to update the game state when
+a user actually clicks on something.  For a game like the one we'll be making here, though,
+the game world will have to get updated all the time, even if the player isn't necessarily
+doing anything (you could think of this as counting the passage of time as a user input).</p><p>Another thing is, in order for most people to make sense out of the world state, we're going
+to need to visualize it for them instead of just showing them the raw data.  So we need some
+sort of function that takes a world state and draws it.</p><p>All that said, this is Clojure, damnit, so we're going to worry about the important part first:
+data.  Which is what our world will be composed of.</p><h2>I Threw It On The Ground</h2><p>Making an entire world sounds like a lot of work, and it is.  Fortunately we don't have to do
+it all at once, we can just incrementally add bits and pieces to the world as we see fit.  When
+I made this game I decided to start with the ground.</p><p>The ground, in our case, is just a list of x-y coordinates.  For the purposes of my game, I'm
+assuming there's no weird things like gaps in our terrain, or extra terrain in the sky, or
+whatever.  The way we're actually going to think of the terrain is as a list of points, with
+line segments connecting them.  So our world right now might look something like this:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">init-state</span><span class="default"> {</span><span class="clojure-keyword-face">:terrain</span><span class="default"> [[-640 -300] [-320 -215] [0 -215] [320 -215] [640 -300]]})</span></pre>
+</blockquote><p>Now you'll notice that I've chosen -640 and 640 as my x-coordinates for the first and last
+points, respectively.  That's because I've decided that the boundaries of the game world
+are going to look something like this:<br/>
+<img src="coordinates.svg" width="500"/></p><p>As far as our game is concerned, anything that leaves these boundaries is dead to us.  We'll
+be enforcing that later once we deal with the parts of the game that actually move.</p><p>Note that these are game-world coordinates, not screen coordinates.  We actually aren't really
+going to care much about screen coordinates at all in this article, other than to note that
+they're not the same thing.</p><h2>Different Strokes</h2><p>So, now we have the first part of our world ready.  Normally we'd say the next step is to
+write some sort of update function, but as it turns out the ground isn't really going to
+change much (for now).  So instead we're going to skip that and just go straight to drawing
+this part of our world.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">draw-state</span><span class="default"> [state]
+  (with-viewport
+    #(apply </span><span class="font-lock-type-face">c</span><span class="default">/stroke-lines ctx (</span><span class="clojure-keyword-face">:terrain</span><span class="default"> state))
+    </span><span class="font-lock-constant-face">true</span><span class="default">))</span></pre>
+</blockquote><p>Here we've introduced some new utility functions.  First, <b>with-viewport</b>
+basically does all the work of transforming the HTML5 canvas coordinate system into one compatible
+with the game coordinate system, and then calls a passed-in function which will do the whatever drawing
+operations need to be done.  Once that function is done, it then restores the canvas coordinate
+system to its original state, which can be useful if you want to do other stuff in the "normal"
+coordinate system (we don't, in this game, but whatever).  <b>with-viewport</b> also takes a "clear"
+argument that erases the canvas before drawing if true, which is what we happen to want right now.</p><p>Next we have <b>c/stroke-lines</b>,  which pretty much just takes a bunch of points and draws lines
+between them.  That function is part of the
+<a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/canvas.cljs">figwheel-test.canvas</a>
+namespace, which is where I put most of my general drawing-related functions.</p><p>Now we can see what our world looks like:</p><blockquote><pre>
+<span class="default">(draw-state init-state)</span></pre>
+</blockquote><p><img src="terrain-1.png" width="600"></p><h2>Just Turret Things</h2><p>As of now we don't actually have anything we can control yet.  We just have land.
+Pretty boring.  Let's add some player state to the mix.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">init-state</span><span class="default"> {</span><span class="clojure-keyword-face">:terrain</span><span class="default"> [[-640 -300] [-320 -215] [0 -215] [320 -215] [640 -300]]
+                 </span><span class="clojure-keyword-face">:player</span><span class="default"> {</span><span class="clojure-keyword-face">:th</span><span class="default"> 0 </span><span class="clojure-keyword-face">:pos</span><span class="default"> [0 -200]}})</span></pre>
+</blockquote><p>This contains the bare minimum for what we would want out of a turret: an angle <b>th</b>
+(short for theta or θ) which represents where the turret is aiming, and a position <b>pos</b>
+which just represents where the turret is sitting.</p><p>What would an update function for this turret look like?  Maybe something like this:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">turret-update</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [th pos] </span><span class="clojure-keyword-face">:as</span><span class="default"> self} pointer]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [dir (</span><span class="font-lock-type-face">g</span><span class="default">/v- pointer pos)]
+    (assoc self </span><span class="clojure-keyword-face">:th</span><span class="default"> (</span><span class="font-lock-type-face">g</span><span class="default">/vec-angle dir))))</span></pre>
+</blockquote><p>The pointer argument, in this case, would be the current mouse location, translated
+into world coordinates.  All this state function does is update the turret's
+angle based on where the cursor is.  This is a perfectly reasonable place to start,
+but it's kind of boring.  Let's make things hard for the player by giving the turret
+some mass, so it takes a non-zero amount of time to swivel to the aiming point.</p><p>Side note: the g namespace here refers to the 
+<a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/geometry.cljs">figwheel-test.geometry</a>
+namespace, which is where I put all of my common geometry-related functions.  <b>v-</b> subtracts
+one vector from another, and <b>vec-angle</b> returns the angle that a particular vector makes
+with the x-axis.</p><p>In order to make this happen, we'll have to add some stuff to the turret state.  Because
+the turret will no longer be instantly following the pointer, we'll need to add an
+angular velocity, which will determine how far to move each frame.  Then we'll need
+to somehow update this angular velocity based on user input.</p><p>We'll call this angular velocity <b>w</b> (easier to type than ω).  We'll also introduce
+two other terms, <b>b</b> and <b>k</b>, which I'll explain in a bit.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">init-state</span><span class="default"> {</span><span class="clojure-keyword-face">:terrain</span><span class="default"> [[-640 -300] [-320 -215] [0 -215] [320 -215] [640 -300]]
+                 </span><span class="clojure-keyword-face">:player</span><span class="default"> {</span><span class="clojure-keyword-face">:th</span><span class="default"> 0 </span><span class="clojure-keyword-face">:w</span><span class="default"> 0 </span><span class="clojure-keyword-face">:pos</span><span class="default"> [0 -200] </span><span class="clojure-keyword-face">:k</span><span class="default"> 0.02 </span><span class="clojure-keyword-face">:b</span><span class="default"> 0.15}})</span></pre>
+</blockquote><p>And of course, we'll have to modify the update function:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">turret-update</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [th pos w k b] </span><span class="clojure-keyword-face">:as</span><span class="default"> self} pointer]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [dir (</span><span class="font-lock-type-face">g</span><span class="default">/v- pointer pos)
+        er [(</span><span class="font-lock-type-face">js</span><span class="default">/Math.cos th) (</span><span class="font-lock-type-face">js</span><span class="default">/Math.sin th)]
+        delta (</span><span class="font-lock-type-face">js</span><span class="default">/Math.atan2 (</span><span class="font-lock-type-face">g</span><span class="default">/vcross er dir) (</span><span class="font-lock-type-face">g</span><span class="default">/vdot er dir))
+        new-w (+ w (* k delta) (* -1 w b))
+        new-th (+ th w)]
+    (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> (assoc self </span><span class="clojure-keyword-face">:th</span><span class="default"> (</span><span class="font-lock-type-face">com</span><span class="default">/clamp 0 new-th (/ tau 2)))
+        (assoc </span><span class="clojure-keyword-face">:w</span><span class="default"> (</span><span class="font-lock-keyword-face">if</span><span class="default"> (</span><span class="font-lock-keyword-face">or</span><span class="default"> (&lt; new-th 0) (&gt; new-th (/ tau 2)))
+                    0 new-w)))))</span></pre>
+</blockquote><p>Huh, what's going on here?  Well, what I've done here is to model the turret's angular
+velocity as being updated using
+<a href="https://en.wikipedia.org/wiki/PID_controller">feedback control</a>.  I won't
+go into too much detail about the math here, but basically, <b>k</b> controls how quickly
+the turret will snap into place, and <b>b</b> will suppress the "overshoot" that will inevitably
+occur otherwise.  <b>k</b> and <b>b</b> don't technically have to be part of the turret state,
+as they never really change.  However, in future iterations of the game, they could
+be made to change via a powerup or perhaps when damage has been taken.</p><p>Another area of note is the <b>delta</b> variable, which computes the difference between
+the desired angle of aim (i.e. whatever <b>th</b> should be in order to point at <b>pointer</b>)
+and the actual point of aim.  Some vector math knowledge is needed to make sense of that,
+for which I defer to 
+wikipedia<a href="http://en.wikipedia.org/wiki/Dot_product">[1]</a><a href="http://en.wikipedia.org/wiki/Cross_product">[2]</a>.</p><p>Finally, note that I clamp the new value of <b>th</b> to within a certain range, because the
+turret has a finite range of travel.  I also force <b>w</b> to 0 if <b>th</b> is about to leave
+that range.</p><p>OK, so now we have some sort of update function for the turret.  But what does this thing
+even look like?</p><p>Well, I could draw something fancy, or I could just stick some circles and lines
+together.  Let's just stick with the second option.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">turret-draw</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [th pos]} ctx]
+  (</span><span class="font-lock-type-face">c</span><span class="default">/with-saved-context
+    ctx
+    (</span><span class="font-lock-keyword-face">fn</span><span class="default"> []
+      (</span><span class="font-lock-keyword-face">let</span><span class="default"> [[x y] pos]
+        (</span><span class="clojure-interop-method-face">.translate</span><span class="default"> ctx x y)
+        (</span><span class="font-lock-type-face">c</span><span class="default">/with-saved-context
+          ctx
+          (</span><span class="font-lock-keyword-face">fn</span><span class="default"> []
+            (</span><span class="clojure-interop-method-face">.rotate</span><span class="default"> ctx th)
+            (</span><span class="font-lock-type-face">c</span><span class="default">/stroke-lines ctx [20 -3] [20 3] [40 3] [40 -3] [20 -3])))
+        (</span><span class="font-lock-keyword-face">set!</span><span class="default"> (</span><span class="clojure-interop-method-face">.-fillStyle</span><span class="default"> ctx) </span><span class="font-lock-string-face">&quot;#fff&quot;</span><span class="default">)
+        (</span><span class="clojure-interop-method-face">.beginPath</span><span class="default"> ctx)
+        (</span><span class="clojure-interop-method-face">.arc</span><span class="default"> ctx 0 0 30 (/ tau -12) (/ (* 7 tau) 12))
+        (</span><span class="clojure-interop-method-face">.lineTo</span><span class="default"> ctx (* 15 (</span><span class="font-lock-type-face">js</span><span class="default">/Math.sqrt 3)) -15)
+        (</span><span class="clojure-interop-method-face">.fill</span><span class="default"> ctx)
+        (</span><span class="clojure-interop-method-face">.stroke</span><span class="default"> ctx)))))</span></pre>
+</blockquote><p>The use of HTML5 Canvas operations is a bit out of the scope of this article, so I'll
+just direct you to the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial">MDN Canvas Tutorial</a>.</p><p>Of course, now we'll have to update our whole-world drawing function, <b>draw-state</b>:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">draw-state</span><span class="default"> [state]
+  (</span><span class="font-lock-type-face">com</span><span class="default">/with-viewport
+    #(</span><span class="font-lock-keyword-face">do</span><span class="default"> (apply </span><span class="font-lock-type-face">c</span><span class="default">/stroke-lines </span><span class="font-lock-type-face">com</span><span class="default">/ctx (</span><span class="clojure-keyword-face">:terrain</span><span class="default"> state))
+         (turret-draw (</span><span class="clojure-keyword-face">:player</span><span class="default"> state) </span><span class="font-lock-type-face">com</span><span class="default">/ctx))
+    </span><span class="font-lock-constant-face">true</span><span class="default">))</span></pre>
+</blockquote><p>Here's what <b>(draw-state init-state)</b> should look like now:<br/>
+<img src="terrain-turret.png" width="600"/></p><h2>Putting It All Together</h2><p>It's about time that we get to see some of this state-updating in action.  The way we'll
+do this is pretty simple, it's conceptually just a continuously updating loop.  First we'll
+set up some preliminary bits:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">stop</span><span class="default"> (atom </span><span class="font-lock-constant-face">false</span><span class="default">))
+(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">state</span><span class="default"> (atom init-state))
+(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">pointer</span><span class="default"> (atom [1 0]))
+(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">screen-&gt;world</span><span class="default"> [p]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [[x y] (</span><span class="font-lock-type-face">g</span><span class="default">/v- (</span><span class="font-lock-type-face">g</span><span class="default">/vscale (/ 1 (scale-factor)) p) [640 480])]
+    [x (- y)]))
+(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">update-state</span><span class="default"> [state pointer]
+  (update state </span><span class="clojure-keyword-face">:player</span><span class="default"> turret-update pointer))</span></pre>
+</blockquote><p><b>stop</b> is going to be used for when we want to stop the game loop.  <b>state</b> is where we'll
+be storing the current game state.  <b>pointer</b> will hold the current location of the mouse
+pointer.  <b>screen->world</b> is a utility function that will be used to convert canvas pixel
+coordinates, which is what we'll be getting from the javascript mouse movement API, into 
+game world coordinates.  Finally, <b>update-state</b> is the "toplevel" state
+updating function that will be used to handle the entire game world update, of which the
+turret is just a part of.</p><p>Here's the function that will actually set the game loop running:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">run-loop</span><span class="default"> []
+  (reset! stop </span><span class="font-lock-constant-face">false</span><span class="default">)
+  (</span><span class="font-lock-keyword-face">set!</span><span class="default"> </span><span class="font-lock-type-face">js</span><span class="default">/window.onmousemove
+        (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [evt]
+          (reset! pointer (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> [(</span><span class="clojure-interop-method-face">.-pageX</span><span class="default"> evt) (</span><span class="clojure-interop-method-face">.-pageY</span><span class="default"> evt)]
+                          (</span><span class="font-lock-type-face">g</span><span class="default">/v- (</span><span class="font-lock-type-face">c</span><span class="default">/elem-offset canvas))
+                          screen-&gt;world))))
+  ((</span><span class="font-lock-keyword-face">fn</span><span class="default"> lp []
+      (</span><span class="font-lock-keyword-face">when</span><span class="default"> (not @stop)
+        (draw-state @state)
+        (swap! state update-state @pointer)
+        (</span><span class="font-lock-type-face">js</span><span class="default">/window.requestAnimationFrame lp)))))</span></pre>
+</blockquote><p>The first part of the function just makes sure that <b>stop</b> is false, and sets up the javascript
+event handler needed to keep <b>pointer</b> up to date.  For the actual "loop", we use a named fn which
+just checks to see if we should stop, draws the current state, updates the current state using <b>update-state</b>,
+and then <b>reschedules itself</b> to run again, using <b>js/window.requestAnimationFrame</b>.
+Finally we call the <b>lp</b> fn within <b>run-loop</b> in order to actually start the updating process.</p><p>Note that there's no really good reason for doing theh actual loop within a nested function as opposed
+breaking it out into its own function.  This is just how I decided to do it.</p><p>Take a moment to play with the turret aiming.  When you're done, you can execute</p><blockquote><pre>
+<span class="default">(reset! stop </span><span class="font-lock-constant-face">true</span><span class="default">)</span></pre>
+</blockquote><p>to pause things and let your computer relax for a bit.</p><h2>Bullets!  My Only Weakness</h2><p>WIP.
+</p></div></body></html>
