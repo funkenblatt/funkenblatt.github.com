@@ -13,8 +13,9 @@ img { border: 1px solid #000; }
 summary of how I did it.</p><h2>Preliminaries</h2><p>This article assumes some basic familiarity with Clojure, leiningen, Clojurescript, and the
 browser programming environment, i.e. what the DOM is and whatnot.  It also assumes
 high school math knowledge, though I won't be going into too much detail into the
-math bits.  Finally, this article also assumes that you've never written a game
-before.  If you have most of it probably won't be very interesting.</p><p><a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/turret.cljs">This</a>
+math bits.  Finally, this article is mostly aimed at people who are somewhat familiar
+with clojure, but aren't quite sure how one would structure a game using purely
+functional data structures.</p><p><a href="https://github.com/funkenblatt/figwheel-test/blob/master/cljs/figwheel_test/turret.cljs">This</a>
 is where you can find the main source of the final game.  I won't be covering the development
 of the entire game, just covering the basic principles that guided it.  If you'd like to follow along,
 you can clone the <b>figwheel-test</b> parent repository.
@@ -195,8 +196,203 @@ turret is just a part of.</p><p>Here's the function that will actually set the g
 event handler needed to keep <b>pointer</b> up to date.  For the actual "loop", we use a named fn which
 just checks to see if we should stop, draws the current state, updates the current state using <b>update-state</b>,
 and then <b>reschedules itself</b> to run again, using <b>js/window.requestAnimationFrame</b>.
-Finally we call the <b>lp</b> fn within <b>run-loop</b> in order to actually start the updating process.</p><p>Note that there's no really good reason for doing theh actual loop within a nested function as opposed
+Finally we call the <b>lp</b> fn within <b>run-loop</b> in order to actually start the updating process.</p><p>Note that there's no really good reason for doing the actual loop within a nested function as opposed
 breaking it out into its own function.  This is just how I decided to do it.</p><p>Take a moment to play with the turret aiming.  When you're done, you can execute</p><blockquote><pre>
 <span class="default">(reset! stop </span><span class="font-lock-constant-face">true</span><span class="default">)</span></pre>
-</blockquote><p>to pause things and let your computer relax for a bit.</p><h2>Bullets!  My Only Weakness</h2><p>WIP.
+</blockquote><p>to pause things and let your computer relax for a bit.</p><h2>Bullets!  My Only Weakness</h2><p>We have a turret now, but of course a turret that doesn't shoot any bullets isn't very
+useful.  So let's add some bullets.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">init-state</span><span class="default"> {</span><span class="clojure-keyword-face">:terrain</span><span class="default"> [[-640 -300] [-320 -215] [0 -215] [320 -215] [640 -300]]
+                 </span><span class="clojure-keyword-face">:player</span><span class="default"> {</span><span class="clojure-keyword-face">:th</span><span class="default"> 0 </span><span class="clojure-keyword-face">:w</span><span class="default"> 0 </span><span class="clojure-keyword-face">:pos</span><span class="default"> [0 -200] </span><span class="clojure-keyword-face">:k</span><span class="default"> 0.02 </span><span class="clojure-keyword-face">:b</span><span class="default"> 0.15}
+                 </span><span class="clojure-keyword-face">:bullets</span><span class="default"> {}})</span></pre>
+</blockquote><p>We've added a new key to the game world - <b>:bullets</b>.  I decided to store the set of all active
+bullets within the game world using a map, so I've set it to an empty map in <b>init-state</b>.</p><p>What exactly is that map going to map between?  Well for my particular game I decided to assign
+each bullet a unique ID, which is used for all operations that need to reference a particular
+bullet.  So <b>:bullets</b> maps between bullet IDs and an individual bullet's state.</p><p>An individual bullet only really needs to pieces of information - a position and a velocity.
+Here I've referred to them using the keys :x and :v.
+Let's take a first crack at what an update function for an individual bullet would look like.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">gravity</span><span class="default"> [0 -0.1])
+(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">bullet-update</span><span class="default"> [state name {</span><span class="clojure-keyword-face">:keys</span><span class="default"> [x v] </span><span class="clojure-keyword-face">:as</span><span class="default"> self}]
+  (assoc-in state [</span><span class="clojure-keyword-face">:bullets</span><span class="default"> name]
+            (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> self
+                (update </span><span class="clojure-keyword-face">:v</span><span class="default"> </span><span class="font-lock-type-face">g</span><span class="default">/v+ gravity)
+                (update </span><span class="clojure-keyword-face">:x</span><span class="default"> </span><span class="font-lock-type-face">g</span><span class="default">/v+ v))))</span></pre>
+</blockquote><p>Why does this function take the entire game state as its first argument, and then
+an ID and a single bullet state as other arguments?  Well as it turns out we'll need
+the entire state in order to do certain operations on an individual bullet, such as
+checking for collisions with terrain or other targets.  Also, it turns out that there's
+a really convenient clojure library function that will make updating every bullet
+in the game world simple.</p><p>Anyway, aside from the particularities of its arguments, all this function does is add
+gravity to a bullet's current velocity, and also updates the position using the bullet's
+current velocity.</p><p>This is a decent start, except for the fact that this bullet basically sticks around forever.
+There's plenty of good reasons for a bullet to stop existing, like if it leaves the screen,
+or if it hits the ground, or hits some other target.  Right now we don't actually have other
+targets, though, and checking for hitting the ground is a bit more complicated, so let's
+just handle the simplest case - checking if the bullet has left our declared world boundaries.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">bullet-update</span><span class="default"> [state name {</span><span class="clojure-keyword-face">:keys</span><span class="default"> [x v] </span><span class="clojure-keyword-face">:as</span><span class="default"> self}]
+  (</span><span class="font-lock-keyword-face">if</span><span class="default"> (</span><span class="font-lock-keyword-face">let</span><span class="default"> [pos x [x y] pos]
+        (</span><span class="font-lock-keyword-face">or</span><span class="default"> (&gt; (</span><span class="font-lock-type-face">js</span><span class="default">/Math.abs x) 640)
+            (&gt; (</span><span class="font-lock-type-face">js</span><span class="default">/Math.abs y) 480)))
+    (update state </span><span class="clojure-keyword-face">:bullets</span><span class="default"> dissoc name)
+    (assoc-in state [</span><span class="clojure-keyword-face">:bullets</span><span class="default"> name]
+              (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> self
+                  (update </span><span class="clojure-keyword-face">:v</span><span class="default"> </span><span class="font-lock-type-face">g</span><span class="default">/v+ gravity)
+                  (update </span><span class="clojure-keyword-face">:x</span><span class="default"> </span><span class="font-lock-type-face">g</span><span class="default">/v+ v)))))</span></pre>
+</blockquote><p>We could add the terrain check while we're at it, but if you're impatient like me,
+you really just want to start seeing some bullets fly around.  We'll have to draw
+the bullets, of course:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">bullet-draw</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [x v]} ctx]
+  (</span><span class="font-lock-type-face">c</span><span class="default">/stroke-lines ctx x (</span><span class="font-lock-type-face">g</span><span class="default">/v- x v)))</span></pre>
+</blockquote><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">draw-state</span><span class="default"> [state]
+  (</span><span class="font-lock-type-face">com</span><span class="default">/with-viewport
+    #(</span><span class="font-lock-keyword-face">do</span><span class="default"> (apply </span><span class="font-lock-type-face">c</span><span class="default">/stroke-lines </span><span class="font-lock-type-face">com</span><span class="default">/ctx (</span><span class="clojure-keyword-face">:terrain</span><span class="default"> state))
+         (turret-draw (</span><span class="clojure-keyword-face">:player</span><span class="default"> state) </span><span class="font-lock-type-face">com</span><span class="default">/ctx)
+         (run! (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [[n x]] (bullet-draw x ctx))
+               (</span><span class="clojure-keyword-face">:bullets</span><span class="default"> state)))
+    </span><span class="font-lock-constant-face">true</span><span class="default">))</span></pre>
+</blockquote><h2>Update ALL The THINGS</h2><p>So we now have a place in our game state to hold all of our bullets, and we have
+a function that will do the update needed for a single bullet.  Now we just need
+to iterate over every bullet and update it.</p><p>There's a bunch of ways to write this accumulation in clojure.  The way I chose to do it,
+however, uses a handy function from the clojure standard library called <b>reduce-kv</b>.
+The primary advantage of using <b>reduce-kv</b> over any other reduce-like thingamabobber
+is that, when called on a map, <b>reduce-kv</b> will do a loop over said map
+without creating any intermediate sequence, as opposed to just plain
+<b>reduce</b>, which will convert the map to a lazy sequence first.  It's
+a small performance benefit, but it's not one that's particularly difficult
+to take advantage of.</p><p>As it turns out the arguments I've made <b>bullet-update</b> take are already
+perfect for use with <b>reduce-kv</b>.  All we have to do is pass it in as our
+reducing function, and then incorporate it into our top-level state
+update function:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">update-state</span><span class="default"> [state pointer]
+  (reduce-kv bullet-update
+             (update state </span><span class="clojure-keyword-face">:player</span><span class="default"> turret-update pointer)
+             (</span><span class="clojure-keyword-face">:bullets</span><span class="default"> state)))</span></pre>
+</blockquote><p>This works fine, but because I happen to know that I'll be doing a bunch
+of similar operations on other groups of objects (the enemies
+that appear in the completed game, and the particle bits), I use this
+simple helper function:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">update-all</span><span class="default"> [state key update-fn]
+  (reduce-kv update-fn state (key state)))</span></pre>
+</blockquote><p>This helper function has the side benefit of making it possible to use
+the thread-first macro (<b>-></b>), which is useful once we start stacking
+on other state modifications:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">update-state</span><span class="default"> [state pointer]
+  (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> (update state </span><span class="clojure-keyword-face">:player</span><span class="default"> turret-update pointer)
+      (update-all </span><span class="clojure-keyword-face">:bullets</span><span class="default"> bullet-update)))</span></pre>
+</blockquote><p>Now we can try running the game with the bullet update in place,
+using <b>(run-loop)</b> again.  While the game is running, you can try
+adding a bullet to the game state:</p><blockquote><pre>
+<span class="default">(swap! state update </span><span class="clojure-keyword-face">:bullets</span><span class="default"> assoc 0 {</span><span class="clojure-keyword-face">:x</span><span class="default"> [0 -200] </span><span class="clojure-keyword-face">:v</span><span class="default"> [0 15]})</span></pre>
+</blockquote><p>This should send a bullet straight up and off the screen.  Neat, huh?</p><p>Let's wrap this whole "add a bullet to the world" thing into a function:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">gen-id</span><span class="default">
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [n (atom 0)]
+    (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [] (swap! n (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [x] (mod (+ x 1) 100000))))))</span></pre>
+</blockquote><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">spawn-bullet</span><span class="default"> [state th pos]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [dir (</span><span class="font-lock-type-face">g</span><span class="default">/unit-vector th)]
+    (update state </span><span class="clojure-keyword-face">:bullets</span><span class="default"> assoc
+            (gen-id)
+            {</span><span class="clojure-keyword-face">:x</span><span class="default"> (</span><span class="font-lock-type-face">g</span><span class="default">/v+ pos (</span><span class="font-lock-type-face">g</span><span class="default">/vscale 50 dir))
+             </span><span class="clojure-keyword-face">:v</span><span class="default"> (</span><span class="font-lock-type-face">g</span><span class="default">/vscale 15 dir)})))</span></pre>
+</blockquote><p>Some quick things to note here: <b>g/unit-vector</b> creates a vector of
+length 1 pointed at some given angle.  The <b>(g/v+ pos (g/vscale 50 dir))</b>
+term is based on the fact that the turret's gun ends at a
+radius 50 away from the center of the turret (which is where <b>pos</b>)
+is.  Finally, <b>gen-id</b> is what we use to make new ID's for bullets and
+other temporary things.</p><h2>Cooldown</h2><p>So, now that we know how to add a bullet to the world, let's start
+using it.  First things first, though, we need to deal with a new
+user input - whether the mouse is being held down or not.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">trigger</span><span class="default"> (atom </span><span class="font-lock-constant-face">false</span><span class="default">))</span></pre>
+</blockquote><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">run-loop</span><span class="default"> []
+  (reset! stop </span><span class="font-lock-constant-face">false</span><span class="default">)
+  (</span><span class="font-lock-keyword-face">set!</span><span class="default"> (</span><span class="clojure-interop-method-face">.-onmousedown</span><span class="default"> canvas) (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [] (reset! trigger </span><span class="font-lock-constant-face">true</span><span class="default">) </span><span class="font-lock-constant-face">false</span><span class="default">))
+  (</span><span class="font-lock-keyword-face">set!</span><span class="default"> (</span><span class="clojure-interop-method-face">.-onmouseup</span><span class="default"> </span><span class="font-lock-type-face">js</span><span class="default">/window) (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [] (reset! trigger </span><span class="font-lock-constant-face">false</span><span class="default">) </span><span class="font-lock-constant-face">false</span><span class="default">))
+  (</span><span class="font-lock-keyword-face">set!</span><span class="default"> </span><span class="font-lock-type-face">js</span><span class="default">/window.onmousemove
+        (</span><span class="font-lock-keyword-face">fn</span><span class="default"> [evt]
+          (reset! pointer (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> [(</span><span class="clojure-interop-method-face">.-pageX</span><span class="default"> evt) (</span><span class="clojure-interop-method-face">.-pageY</span><span class="default"> evt)]
+                          (</span><span class="font-lock-type-face">g</span><span class="default">/v- (</span><span class="font-lock-type-face">c</span><span class="default">/elem-offset canvas))
+                          screen-&gt;world))))
+  ((</span><span class="font-lock-keyword-face">fn</span><span class="default"> lp []
+      (</span><span class="font-lock-keyword-face">when</span><span class="default"> (not @stop)
+        (draw-state @state)
+        (swap! state update-state @pointer @trigger)
+        (</span><span class="font-lock-type-face">js</span><span class="default">/window.requestAnimationFrame lp)))))</span></pre>
+</blockquote><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">update-state</span><span class="default"> [state pointer trigger]
+  (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> (update state </span><span class="clojure-keyword-face">:player</span><span class="default"> turret-update pointer trigger)
+      (update-all </span><span class="clojure-keyword-face">:bullets</span><span class="default"> bullet-update)))</span></pre>
+</blockquote><p>You'll notice I've added two lines to the setup code in <b>run-loop</b>.
+These basically just keep the <b>trigger</b> variable up to date as to
+whether the mouse is currently down or not.  Also notice that
+<b>update-state</b> now takes an extra <b>trigger</b> argument, which is
+passed on to <b>turret-update</b>.</p><p>Note: at this point, if you currently have the game running, you'll
+probably want to stop it (again using <b>(reset! stop true)</b>).</p><p>So.  What is <b>turret-update</b> going to do with that trigger argument?
+Well, obviously once the trigger is down it should add a bullet to
+the world.  If we do that every frame, though, we'll be spawning
+60 bullets per second, which is a lot.  Let's add a <b>cooldown</b>
+parameter that will determine whether we can actually shoot yet.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">def</span><span class="default"> </span><span class="font-lock-variable-name-face">init-state</span><span class="default"> {</span><span class="clojure-keyword-face">:terrain</span><span class="default"> [[-640 -300] [-320 -215] [0 -215] [320 -215] [640 -300]]
+                 </span><span class="clojure-keyword-face">:player</span><span class="default"> {</span><span class="clojure-keyword-face">:th</span><span class="default"> 0 </span><span class="clojure-keyword-face">:w</span><span class="default"> 0 </span><span class="clojure-keyword-face">:pos</span><span class="default"> [0 -200] </span><span class="clojure-keyword-face">:k</span><span class="default"> 0.02 </span><span class="clojure-keyword-face">:b</span><span class="default"> 0.15 
+                          </span><span class="clojure-keyword-face">:cooldown</span><span class="default"> 0}
+                 </span><span class="clojure-keyword-face">:bullets</span><span class="default"> {}})</span></pre>
+</blockquote><p>In my game, I've defined things such that when <b>:cooldown</b> is equal to 0,
+the turret is ready to fire.  If we're firing, which requires cooldown
+to be 0 and the trigger to be pulled, we'll set <b>:cooldown</b> to
+however many frames we want between shots, and then decrement it
+every frame until we get to zero:</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">turret-update</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [th pos w k b cooldown] </span><span class="clojure-keyword-face">:as</span><span class="default"> self} pointer trigger]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [dir (</span><span class="font-lock-type-face">g</span><span class="default">/v- pointer pos)
+        er [(</span><span class="font-lock-type-face">js</span><span class="default">/Math.cos th) (</span><span class="font-lock-type-face">js</span><span class="default">/Math.sin th)]
+        delta (</span><span class="font-lock-type-face">js</span><span class="default">/Math.atan2 (</span><span class="font-lock-type-face">g</span><span class="default">/vcross er dir) (</span><span class="font-lock-type-face">g</span><span class="default">/vdot er dir))
+        new-w (+ w (* k delta) (* -1 w b))
+        new-th (+ th w)
+        firing (</span><span class="font-lock-keyword-face">and</span><span class="default"> trigger (= cooldown 0))]
+    (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> (assoc self </span><span class="clojure-keyword-face">:th</span><span class="default"> (</span><span class="font-lock-type-face">com</span><span class="default">/clamp 0 new-th (/ tau 2)))
+        (assoc </span><span class="clojure-keyword-face">:w</span><span class="default"> (</span><span class="font-lock-keyword-face">if</span><span class="default"> (</span><span class="font-lock-keyword-face">or</span><span class="default"> (&lt; new-th 0) (&gt; new-th (/ tau 2)))
+                    0 new-w))
+        (assoc </span><span class="clojure-keyword-face">:cooldown</span><span class="default"> (</span><span class="font-lock-keyword-face">if</span><span class="default"> firing 5 (max (dec cooldown) 0))))))</span></pre>
+</blockquote><p>Dandy!  Except now we have a problem: how do we spawn the actual bullet when
+firing?  As it turns out, <b>turret-update</b> is going to need to be able to write
+to other parts of the game world, not just itself.</p><blockquote><pre>
+<span class="default">(</span><span class="font-lock-keyword-face">defn</span><span class="default"> </span><span class="font-lock-function-name-face">turret-update</span><span class="default"> [state path pointer trigger]
+  (</span><span class="font-lock-keyword-face">let</span><span class="default"> [{</span><span class="clojure-keyword-face">:keys</span><span class="default"> [th pos w k b cooldown] </span><span class="clojure-keyword-face">:as</span><span class="default"> self} (get-in state path)
+        dir (</span><span class="font-lock-type-face">g</span><span class="default">/v- pointer pos)
+        er [(</span><span class="font-lock-type-face">js</span><span class="default">/Math.cos th) (</span><span class="font-lock-type-face">js</span><span class="default">/Math.sin th)]
+        delta (</span><span class="font-lock-type-face">js</span><span class="default">/Math.atan2 (</span><span class="font-lock-type-face">g</span><span class="default">/vcross er dir) (</span><span class="font-lock-type-face">g</span><span class="default">/vdot er dir))
+        new-w (+ w (* k delta) (* -1 w b))
+        new-th (+ th w)
+        firing (</span><span class="font-lock-keyword-face">and</span><span class="default"> trigger (= cooldown 0))]
+    (assoc-in
+     (</span><span class="font-lock-keyword-face">if</span><span class="default"> firing (spawn-bullet state th pos) state)
+     path
+     (</span><span class="font-lock-keyword-face">-&gt;</span><span class="default"> (assoc self </span><span class="clojure-keyword-face">:th</span><span class="default"> (</span><span class="font-lock-type-face">com</span><span class="default">/clamp 0 new-th (/ tau 2)))
+         (assoc </span><span class="clojure-keyword-face">:w</span><span class="default"> (</span><span class="font-lock-keyword-face">if</span><span class="default"> (</span><span class="font-lock-keyword-face">or</span><span class="default"> (&lt; new-th 0) (&gt; new-th (/ tau 2)))
+                     0 new-w))
+         (assoc </span><span class="clojure-keyword-face">:cooldown</span><span class="default"> (</span><span class="font-lock-keyword-face">if</span><span class="default"> firing 5 (max (dec cooldown) 0)))))))</span></pre>
+</blockquote><p>So, now <b>turret-update</b> takes the whole game state as an
+argument.  I've also added a new <b>path</b> argument, which tells
+<b>turret-update</b> where to find the particular turret that we're
+dealing with.  This is just in case we want to have multiple
+turrets or something in the future, or maybe if we just want
+to be able to rearrange the location of the turret information
+within the game state.  <b>path</b> is used as an argument to both
+<b>get-in</b> and <b>assoc-in</b>, for reads and writes, respectively.</p><p>Other than the <b>path</b> change, the rest of the function is relatively
+unchanged, other than adding the bit that uses <b>spawn-bullet</b>
+on the state if we're firing.</p><p>We've added something to the initial state, so in order to keep
+things completely safe, we'll probably want to reinitialize the
+state atom:</p><blockquote><pre>
+<span class="default">(reset! state init-state)</span></pre>
+</blockquote><p>Other than that, we should be ready to rip.  Just call
+<b>(run-loop)</b> again and fire away.</p><h2>Conclusions</h2><p>This article is pretty damn long-winded already so I'll try and
+keep this short.  Hopefully this is enough to get you started on
+understanding the rest of the code (other than the math bits, for
+which I refer you to 
+<a href="https://en.wikipedia.org/wiki/Analytic_geometry">Wikipedia</a>
+or something).  If there's sufficient interest I may cover some
+other parts of the code in greater detail.</p><p>As for other conclusions, I'd just like to say that
+the interactive development environment that clojurescript provides
+is friggin' great, and that you shouldn't be afraid of immutability.
+All the things you know about manipulating data in clojure still apply
+in game-land.</p><p>Happy hacking!
 </p></div></body></html>
