@@ -1,0 +1,111 @@
+<html><head><script type="text/javascript">function vadd (a, b) {
+return [a[0]+b[0], a[1]+b[1]];;
+};
+function wrap (x, b) {
+if (x<0) {
+  return x+b;
+}
+else {
+  return x%b;
+}
+
+};
+function wrapv (v, width, height) {
+var x = v[0];
+var y = v[1];
+return [wrap(x, width), wrap(y, height)];;;
+};
+function node (x) {
+if (typeof(x)==="string") {
+  return document.createTextNode(x);
+}
+else {
+  if (typeof(x)==="number") {
+  return document.createTextNode(JSON.stringify(x));
+}
+else {
+  if ((x instanceof Array)) {
+  var el = document.createElement(x.shift());
+var attribs = (typeof(x[0])==="object"&&(!((x[0] instanceof Array))) ? x.shift() : null);
+for (var a in attribs) {
+if (a=="style") {
+  for (var s in attribs[a]) {
+el[a][s]=attribs[a][s];
+}
+}
+else {
+  el[a]=attribs[a];
+}
+
+};
+x.forEach(function  (x) {
+return el.appendChild(node(x));;
+});
+return el;;
+}
+else {
+  if (true) {
+  return x;
+}
+
+}
+
+}
+
+}
+
+};
+var histo={};
+function showHist () {
+var out = ["table"];
+for (var i in histo) {
+out.push(["tr", ["td", i], ["td", ["div", {style:{width:histo[i]+"px",background:"#000"}}, "|"]]]);
+};
+document.querySelector("#hist").innerHTML="";
+return document.querySelector("#hist").appendChild(node(out));;;
+};
+function init () {
+var can = document.querySelector("#can");
+var ctx = can.getContext("2d");
+var btn = document.querySelector("#btn");
+var txt = document.querySelector("#txt");
+var particles = new Array(1000);
+var running = false;
+for (var i=0; i<1000; ++(i)) {
+particles[i]={x:[800*Math.random(), 600*Math.random()],v:[4*Math.random()-2, 4*Math.random()-2]};
+}
+;
+console.log(particles);
+var animLoop=function  () {
+var start = Date.now();
+ctx.clearRect(0, 0, 800, 600);
+for (var i=0; i<1000; ++(i)) {
+particles[i].x=wrapv(vadd(particles[i].x, particles[i].v), 800, 600);
+var g193 = particles[i].x;
+var x = g193[0];
+var y = g193[1];
+ctx.beginPath();
+ctx.arc(x, y, 3, 0, 2*Math.PI);
+ctx.stroke();;
+}
+;
+var end = Date.now();
+txt.innerText=end-start;
+histo[end-start]=(histo[end-start]||0)+1;;
+if (running) {
+  return requestAnimationFrame(animLoop);
+}
+
+};
+btn.onclick=function  () {
+if (running) {
+  running=false;
+}
+else {
+  running=true;
+return animLoop();
+}
+
+};
+document.querySelector("#showhist").onclick=showHist;;;
+}</script></head><body onload="init()"><canvas id="can" width="800" height="600"></canvas><button id="btn">Go</button><button id="showhist">Show Histogram</button><span id="txt"></span><div id="hist"></div></body></html>
