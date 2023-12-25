@@ -34,12 +34,13 @@ function init () {
 document.querySelector("#play").onclick=function  (e) {
 if (e.button===0) {
   if (playing) {
-  return mySrc.stop();
+  mySrc.stop();
 }
 else {
   mySrc=playTicks(getval("#beats"), getval("#seconds"));
 }
-
+;
+playing=(!(playing));
 }
 
 }
