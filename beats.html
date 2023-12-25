@@ -1,0 +1,46 @@
+<html><head><title>Sound test</title><script type="text/javascript">var ac=new AudioContext();
+var myArrayBuffer=ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+var mySrc=null;
+function tickBuffer (beats, seconds) {
+var i = 0;
+var out = ac.createBuffer(1, ac.sampleRate*seconds, ac.sampleRate);
+var buf = out.getChannelData(0);
+for (i; i<beats; ++(i)) {
+var ix = Math.floor(i*ac.sampleRate*seconds/beats);
+buf[ix]=(i===0 ? 1.0 : 0.2);
+buf[ix+1]=(i===0 ? 0.9 : 0.5);
+buf[ix+2]=0.7;
+buf[ix+3]=0.3;
+buf[ix+4]=0.2;
+buf[ix+4]=0.1;
+buf[ix+4]=0.05;;
+}
+;
+return out;;;
+};
+function playTicks (beats, seconds) {
+var srcwad = ac.createBufferSource();
+srcwad.buffer=tickBuffer(beats, seconds);
+srcwad.loop=true;
+srcwad.connect(ac.destination);
+srcwad.start();
+return srcwad;;;
+};
+function getval (id) {
+return parseInt(document.querySelector(id).value);;
+};
+var playing=false;
+function init () {
+document.querySelector("#play").onclick=function  (e) {
+if (e.button===0) {
+  if (playing) {
+  return mySrc.stop();
+}
+else {
+  mySrc=playTicks(getval("#beats"), getval("#seconds"));
+}
+
+}
+
+}
+}</script></head><body onLoad="init()"><div>Beats: <input type="text" id="beats" value="10"></input></div><div>Seconds: <input type="text" id="seconds" value="1"></input></div><div><button id="play">Play</button></div></body></html>
