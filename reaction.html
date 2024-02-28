@@ -1,0 +1,32 @@
+<html><head><title>Reaction Time Test</title><style>body { margin: 0px }</style><script type="text/javascript">function setup () {
+var e = document.querySelector("#main");
+var f = null;
+f=function  () {
+console.log("Eat ass");
+var canceled = null;
+e.style.background="#7f7";
+e.onmousedown=function  () {
+console.log("Canceling");
+canceled=true;
+e.style.background="#77f";
+e.onmousedown=f;;
+};
+return setTimeout(function  () {
+if (canceled) {
+  return console.log("Fuck you");
+}
+else {
+  var start = Date.now();
+e.style.background="#f00";
+e.onmousedown=function  () {
+var end = Date.now();
+document.querySelector("#out").innerHTML="<p>"+(end-start).toString()+"</p>"+document.querySelector("#out").innerHTML;
+e.style.background="#77f";
+e.onmousedown=f;;;
+}
+}
+
+}, 2000+3000*Math.random());;;
+};
+e.onmousedown=f;;;
+}</script></head><body onLoad="setup()"><h1>Reaction Time Test</h1><div id="main" style="height: 300px; background: #77f"></div><div id="out"/></body></html>
