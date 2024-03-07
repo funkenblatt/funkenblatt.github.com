@@ -110,10 +110,6 @@ return x.parentNode.removeChild(x);;
 });;
 };
 
-reloadPoll(["map2.eljs.el", "map2.html"]);
-
-replPoll();
-
 function setHeight () {
 document.querySelector("#map").style.height=(innerHeight-150).toString()+"px";;
 };
